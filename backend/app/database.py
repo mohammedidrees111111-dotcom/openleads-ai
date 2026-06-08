@@ -18,6 +18,33 @@ from app.models.client import Client
 from app.models.email import SentEmail, EmailTemplate
 from app.models.integration import Integration
 from app.models.analytics import AnalyticsEvent, DailyStats
+from sqlalchemy import select
+
+
+async def seed_admin_users():
+    """Auto-seed admin accounts on startup so login works immediately."""
+    from app.core.security import get_password_hash
+    from app.models.user import UserRole, SubscriptionTier
+    ADMINS = [
+        {"email": "mohammedidrees840@gmail.com", "name": "Mohammed Idrees", "company": "OpenLeads AI"},
+        {"email": "mohammedidrees111111@gmail.com", "name": "Mohammed Idrees", "company": "OpenLeads AI"},
+    ]
+    async with async_session_factory() as db:
+        for a in ADMINS:
+            result = await db.execute(select(User).where(User.email == a["email"]))
+            if not result.scalar_one_or_none():
+                user = User(
+                    email=a["email"],
+                    password_hash=get_password_hash("admin123"),
+                    name=a["name"],
+                    company=a["company"],
+                    role=UserRole.ADMIN,
+                    subscription_tier=SubscriptionTier.FREE,
+                    is_verified=True,
+                    is_active=True,
+                )
+                db.add(user)
+        await db.commit()
 
 
 async def get_db():
@@ -31,3 +58,4 @@ async def get_db():
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    await seed_admin_users()

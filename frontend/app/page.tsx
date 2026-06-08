@@ -93,38 +93,44 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section className="px-6 py-20 border-t border-white/5">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold mb-4">Simple Pricing</h2>
-          <p className="text-gray-400 mb-12">Start at $299/month. Scale as you grow.</p>
-          <div className="grid md:grid-cols-3 gap-6">
+        <div className="mx-auto max-w-5xl text-center">
+          <h2 className="text-3xl font-bold mb-4">Pricing Built for Agencies</h2>
+          <p className="text-gray-400 mb-12">Competitive rates. No hidden fees. Cancel anytime.</p>
+          <div className="grid md:grid-cols-4 gap-4">
             {[
-              { name: "Starter", price: "$299", leads: "500", campaigns: "5" },
-              { name: "Growth", price: "$599", leads: "2,000", campaigns: "Unlimited" },
-              { name: "Pro", price: "$1,199", leads: "10,000", campaigns: "Unlimited" },
+              { name: "Free", price: "$0", leads: "100", campaigns: "1", features: ["AI lead finder", "Basic scoring", "Email support"] },
+              { name: "Starter", price: "$49", leads: "1,000", campaigns: "5", features: ["AI lead finder", "AI scoring", "Email outreach", "LinkedIn", "API access"] },
+              { name: "Growth", price: "$99", leads: "5,000", campaigns: "Unlimited", features: ["Everything in Starter", "WhatsApp/SMS", "Multi-channel", "White-label", "Priority support"] },
+              { name: "Pro", price: "$199", leads: "Unlimited", campaigns: "Unlimited", features: ["Everything in Growth", "Dedicated account mgr", "Custom integrations", "SLA guarantee", "24/7 phone support"] },
             ].map((p, i) => (
               <div
                 key={i}
-                className={`rounded-xl border p-6 card-hover ${i === 1 ? "border-indigo-500/50 bg-indigo-500/5" : "border-white/10"}`}
+                className={`rounded-xl border p-5 card-hover ${i === 2 ? "border-indigo-500/50 bg-indigo-500/5 scale-105" : "border-white/10"}`}
               >
-                {i === 1 && (
-                  <span className="inline-block text-xs font-medium text-indigo-400 bg-indigo-500/10 rounded-full px-3 py-1 mb-4">
+                {i === 2 && (
+                  <span className="inline-block text-xs font-medium text-indigo-400 bg-indigo-500/10 rounded-full px-3 py-1 mb-3">
                     Most Popular
                   </span>
                 )}
-                <h3 className="text-xl font-bold mb-2">{p.name}</h3>
-                <p className="text-3xl font-bold mb-4">{p.price}<span className="text-sm font-normal text-gray-500">/mo</span></p>
-                <ul className="text-sm text-gray-400 space-y-2 mb-6">
-                  <li>{p.leads} leads/mo</li>
-                  <li>{p.campaigns} campaigns</li>
-                  <li>AI lead scoring</li>
-                  <li>Email outreach</li>
+                <h3 className="text-lg font-bold mb-1">{p.name}</h3>
+                <p className="text-2xl font-bold mb-3">{p.price}<span className="text-sm font-normal text-gray-500">/mo</span></p>
+                <p className="text-xs text-gray-500 mb-4">{p.leads} leads • {p.campaigns} campaigns</p>
+                <ul className="text-xs text-gray-400 space-y-1.5 mb-5 text-left px-2">
+                  {p.features.map((f, j) => (
+                    <li key={j} className="flex items-center gap-1.5">
+                      <span className="text-indigo-400">✓</span> {f}
+                    </li>
+                  ))}
                 </ul>
                 <Link href="/register" className="w-full">
-                  <Button className="w-full" variant={i === 1 ? "default" : "outline"}>Get Started</Button>
+                  <Button className="w-full text-sm" variant={i === 2 ? "default" : "outline"} size="sm">
+                    {i === 0 ? "Start Free" : "Get Started"}
+                  </Button>
                 </Link>
               </div>
             ))}
           </div>
+          <p className="text-xs text-gray-500 mt-6">All plans include 14-day free trial. No credit card required.</p>
         </div>
       </section>
 
