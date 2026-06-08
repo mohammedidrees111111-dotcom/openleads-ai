@@ -62,7 +62,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
     BACKEND_URL: str = os.getenv("BACKEND_URL", "http://localhost:8000")
 
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "https://*.openleads.ai"]
+    CORS_ORIGINS: List[str] = ["*"]
 
     DAILY_EMAIL_LIMIT: int = 50
     DAILY_LINKEDIN_LIMIT: int = 30

@@ -1,12 +1,6 @@
 import axios from "axios";
 
-const getApiUrl = () => {
-  if (typeof window !== "undefined") {
-    return `http://${window.location.hostname}:8000/api/v1`;
-  }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
-};
-const API_URL = getApiUrl();
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -17,6 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
+    config.baseURL = `http://${window.location.hostname}:8000/api/v1`;
     const token = localStorage.getItem("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
