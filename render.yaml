@@ -1,0 +1,75 @@
+services:
+  - type: web
+    name: openleads-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: openleads-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: openleads-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: openleads-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: openleads-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://openleads-frontend.onrender.com
+      - key: BACKEND_URL
+        value: https://openleads-backend.onrender.com
+
+  - type: web
+    name: openleads-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://openleads-backend.onrender.com/api/v1
+
+  - type: worker
+    name: openleads-worker
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    command: celery -A app.core.celery_app worker --loglevel=info
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: openleads-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: openleads-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: openleads-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: openleads-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+
+  - type: redis
+    name: openleads-redis
+    plan: starter  # Render free tier removed Redis, use starter ($7/mo)
+
+databases:
+  - name: openleads-db
+    plan: starter  # Render removed free PostgreSQL

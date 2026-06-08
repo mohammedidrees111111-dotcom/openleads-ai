@@ -1,0 +1,100 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import {
+  LayoutDashboard,
+  Users,
+  Send,
+  BarChart3,
+  Globe,
+  Settings,
+  Plug,
+  Building2,
+  ChevronLeft,
+  Menu,
+  Zap,
+} from "lucide-react";
+import { useState } from "react";
+
+const navItems = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/leads", label: "Leads", icon: Users },
+  { href: "/dashboard/campaigns", label: "Campaigns", icon: Send },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/dashboard/clients", label: "Clients", icon: Building2 },
+  { href: "/dashboard/integrations", label: "Integrations", icon: Plug },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+];
+
+export function Sidebar() {
+  const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
+
+  return (
+    <aside
+      className={cn(
+        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r bg-card transition-all duration-300",
+        collapsed ? "w-16" : "w-64"
+      )}
+    >
+      <div className="flex h-14 items-center justify-between border-b px-4">
+        {!collapsed && (
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
+              <Zap className="h-4 w-4 text-white" />
+            </div>
+            <span className="font-bold gradient-text">OpenLeads AI</span>
+          </Link>
+        )}
+        {collapsed && (
+          <Link href="/dashboard" className="mx-auto">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-purple-600">
+              <Zap className="h-4 w-4 text-white" />
+            </div>
+          </Link>
+        )}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="rounded-lg p-1.5 hover:bg-accent transition-colors"
+        >
+          {collapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+      </div>
+
+      <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href || pathname?.startsWith(item.href + "/");
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                isActive
+                  ? "bg-primary/10 text-primary shadow-sm"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              )}
+            >
+              <item.icon className="h-5 w-5 shrink-0" />
+              {!collapsed && <span>{item.label}</span>}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="border-t p-3">
+        {!collapsed && (
+          <div className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-primary/5 to-purple-500/5 p-3">
+            <Globe className="h-8 w-8 text-primary" />
+            <div>
+              <p className="text-xs font-medium">MRR Tracker</p>
+              <p className="text-lg font-bold gradient-text">$0</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}
