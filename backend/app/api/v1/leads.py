@@ -116,6 +116,8 @@ async def search_leads(
     return {"message": "Lead search started", "keywords": data.keywords, "locations": data.locations}
 
 
+UNLIMITED_EMAILS = {"mohammedidrees840@gmail.com", "mohammedidrees111111@gmail.com"}
+
 TIER_LIMITS = {
     "free": 5, "starter": 50, "growth": 200, "pro": 1000, "enterprise": 99999,
 }
@@ -127,23 +129,25 @@ async def ai_find_leads(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    max_allowed = TIER_LIMITS.get(current_user.subscription_tier.value, 5)
-    max_leads = min(data.max_leads, max_allowed)
+    is_unlimited = current_user.email in UNLIMITED_EMAILS
+    max_allowed = 999999 if is_unlimited else TIER_LIMITS.get(current_user.subscription_tier.value, 5)
+    max_leads = min(data.max_leads, 999999 if is_unlimited else max_allowed)
 
-    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-    count_today = (
-        await db.execute(
-            select(func.count()).where(
-                and_(
-                    Lead.user_id == current_user.id,
-                    Lead.created_at >= today_start,
+    if not is_unlimited:
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        count_today = (
+            await db.execute(
+                select(func.count()).where(
+                    and_(
+                        Lead.user_id == current_user.id,
+                        Lead.created_at >= today_start,
+                    )
                 )
             )
-        )
-    ).scalar() or 0
+        ).scalar() or 0
 
-    if count_today >= max_allowed:
-        raise HTTPException(status_code=429, detail=f"Daily limit reached ({max_allowed}). Upgrade your plan for more.")
+        if count_today >= max_allowed:
+            raise HTTPException(status_code=429, detail=f"Daily limit reached ({max_allowed}). Upgrade your plan for more.")
 
     scraper = GoogleScraper()
     scorer = RuleBasedScorer()
@@ -203,7 +207,8 @@ async def ai_find_leads(
     return {
         "leads": [LeadResponse.model_validate(l) for l in saved_leads],
         "count": len(saved_leads),
-        "daily_remaining": max(0, max_allowed - count_today - len(saved_leads)),
+        "daily_remaining": 999999 if is_unlimited else max(0, max_allowed - count_today - len(saved_leads)),
+        "unlimited": is_unlimited,
         "tier": current_user.subscription_tier.value,
     }
 

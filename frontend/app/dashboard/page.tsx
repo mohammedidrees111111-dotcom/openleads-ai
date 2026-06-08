@@ -79,7 +79,11 @@ export default function DashboardPage() {
       setFinderResults(res.data.leads || []);
       setFinderTier(res.data.tier);
       setFinderRemaining(res.data.daily_remaining);
-      setFinderMsg(`Found ${res.data.count} leads! ${res.data.daily_remaining} remaining today.`);
+      if (res.data.unlimited) {
+        setFinderMsg(`Found ${res.data.count} leads! ♾️ Unlimited access — no daily limit.`);
+      } else {
+        setFinderMsg(`Found ${res.data.count} leads! ${res.data.daily_remaining} remaining today.`);
+      }
     } catch (err: any) {
       setFinderMsg(err.response?.data?.detail || "Failed to find leads");
     } finally {
@@ -372,12 +376,13 @@ export default function DashboardPage() {
                   <input
                     type="range"
                     min={1}
-                    max={50}
+                    max={200}
                     value={finderForm.max_leads}
                     onChange={e => setFinderForm({...finderForm, max_leads: parseInt(e.target.value)})}
                     disabled={finderLoading}
                     className="w-full"
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground"><span>1</span><span>200</span></div>
                 </div>
               </div>
 
@@ -390,7 +395,7 @@ export default function DashboardPage() {
               {stats?.total_leads !== undefined && (
                 <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 text-sm">
                   <span>Your Plan: <strong>{TIER_NAMES[stats?.subscription_tier || "free"] || "Free"}</strong></span>
-                  <span>Today: {stats?.total_leads || 0} / {TIER_LIMITS[stats?.subscription_tier || "free"]} leads</span>
+                  <span>Today: {stats?.total_leads || 0} / {finderTier === "free" && finderRemaining >= 999999 ? "♾️ Unlimited" : `${TIER_LIMITS[stats?.subscription_tier || "free"]}`} leads</span>
                 </div>
               )}
 
